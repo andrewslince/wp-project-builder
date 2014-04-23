@@ -1,0 +1,10 @@
+[
+    {
+        "language": "pt_BR",
+        "downloadUrl": "http://br.wordpress.org/latest-pt_BR.zip"
+    },
+    {
+        "language": "en_US",
+        "downloadUrl": "http://wordpress.org/latest.zip"
+    }
+]

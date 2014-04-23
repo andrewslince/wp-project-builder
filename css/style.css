@@ -1,0 +1,335 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+*, *:before, *:after {
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+            box-sizing: border-box;
+}
+
+body {
+    color: #555;
+}
+
+input {
+    border: 1px #ddd solid;
+    font-family: serif;
+}
+
+/* general classes */
+
+.btn {
+    display: block;
+    text-decoration: none;
+    background-color: #51c101;
+    text-align: center;
+    padding: 10px 0;
+    color: #fff;
+}
+
+.btn-inactive {
+    background: #eee;
+    color: #bbb;
+    cursor: not-allowed;
+}
+
+.section {
+    width: 100%;
+    padding: 20px 0;
+}
+
+    .section .content-container {
+        width:800px;
+        margin: auto;
+    }
+
+    .section-description {
+        margin-bottom: 20px;
+        font-size: 15px;
+        font-style: italic;
+    }
+
+/* layout components */
+
+#header {
+    width: 100%;
+    text-align: center;
+    padding: 50px 0;
+}
+
+#footer {
+    width: 100%;
+    text-align: center;
+    padding: 20px 0;
+}
+
+/* [ page=home ] */
+
+#build-container {
+    position: relative;
+}
+
+.build-component {
+    position: relative;
+    padding: 10px 20px 15px 20px;
+    border: 1px #eee solid;
+    margin-bottom: 20px;
+}
+
+    .build-component h3 {
+        margin-bottom: 20px;
+    }
+
+    .choice-options {
+        width: 100%;
+        text-align: center;
+    }
+
+    .choice-options li {
+        list-style: none;
+        display: inline-block;
+        margin: 10px;
+        text-transform: lowercase;
+    }
+
+    .choice-options .option-description {
+        text-decoration: none;
+        border: 1px #ddd solid;
+        padding: 5px 10px;
+        color: #333;
+        float: left;
+        font-style: normal;
+    }
+
+    #wp-plugin-options .option-description {
+        border-right: none;
+    }
+
+    .choice-options .plugin-info {
+        width: 32px;
+        height: 32px;
+        font-size: 22px;
+        font-style: italic;
+        font-weight: bold;
+        line-height: 16px;
+        float: left;
+        color: transparent;
+        text-decoration: none;
+        background: #555 url("../images/link.png") no-repeat center center;
+    }
+
+    .choice-options .plugin-info:hover {
+        background-color: #444;
+    }
+
+    .choice-options a:hover {
+        background-color: #eee;
+    }
+
+    .choice-options .selected:hover,
+    .choice-options .selected {
+        border-color: #008CBA;
+        background: #008CBA;
+        color: #fff;
+    }
+
+#btn-build-project {
+    margin: 40px auto 0 auto;
+    width: 100px;
+}
+
+/* [ page=home ] new plugin */
+
+#new-plugin-container {
+    background-color: #f6f6f6;
+    padding: 45px 20px 20px 20px;
+    margin-bottom: 15px;
+    border: 1px #e5e5e5 solid;
+    text-align: center;
+    position: relative;
+}
+
+    #flag-new-plugin {
+        position: absolute;
+        top: 0;
+        left: 0;
+        padding: 7px 0 7px 13px;
+        background-color: #555;
+        color: #eee;
+        font-weight: normal;
+        font-style: italic;
+        font-size: 18px;
+        width: 758px;
+        text-align: left;
+        border: 1px #555 solid;
+        margin: -1px;
+    }
+
+    #new-plugin-container label {
+        width: 100%;
+        text-align: left;
+        display: inline-block;
+        margin-bottom: 10px;
+    }
+
+    #new-plugin-url {
+        font-size: 15px;
+        padding: 10px 50px 10px 10px;
+        width: 100%;
+        outline: none;
+    }
+
+        #new-plugin-url::-webkit-input-placeholder {
+            font-style: italic;
+            font-size: 17px;
+            line-height: 15px;
+        }
+
+        #new-plugin-url:-moz-placeholder {
+           font-style: italic;
+            font-size: 17px;
+            line-height: 15px;
+        }
+
+        #new-plugin-url::-moz-placeholder {
+            font-style: italic;
+            font-size: 17px;
+            line-height: 15px;
+        }
+
+        #new-plugin-url:-ms-input-placeholder {
+            font-style: italic;
+            font-size: 17px;
+            line-height: 15px;
+        }
+
+    #new-plugin-submit {
+        color: transparent;
+        position: absolute;
+        top: 75px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        border: 1px #ddd solid;
+        border-left: none;
+    }
+
+        #new-plugin-submit.inactive {
+            background: #e5e5e5 url("../images/success-mini-inactive.png") no-repeat center center;
+        }
+
+        #new-plugin-submit.active {
+            background: #51c101 url("../images/success-mini-active.png") no-repeat center center;
+            border-color: #51c101;
+        }
+
+        #new-plugin-submit.active:hover {
+            cursor: pointer;
+            opacity: 0.8;
+        }
+
+.overlay-layer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 1;
+    background: #fff url("../images/loading.gif") no-repeat center 60px;
+    top: 0;
+    right: 0;
+}
+
+#close-overlay,
+#close-overlay-build {
+    text-decoration: none;
+    width: 60px;
+    margin: 20px auto 0 auto;
+    text-align: center;
+    padding: 5px;
+    background-color: #008CBA;
+    color: #fff;
+    display: none;
+    position: relative;
+}
+
+#close-overlay-build {
+    margin-top: 350px !important;
+}
+
+.overlay-layer.error {
+    background: #fff url("../images/error.png") no-repeat center 50px;
+}
+
+.overlay-layer.success {
+    background: #fff url("../images/success.png") no-repeat center 50px;
+}
+
+#msg-steps-add-new-plugin {
+    margin: 110px auto 0 auto;
+    text-align: center;
+    font-style: italic;
+    font-size: 25px;
+}
+
+#plugin-list {
+    width: 100%;
+    text-align: center;
+    font-style: italic;
+}
+
+#msg-steps-add-new-plugin.error {
+    color: #e60014;
+    font-style: normal;
+}
+
+#msg-steps-add-new-plugin.success {
+    color: #51c101;
+    font-style: normal;
+}
+
+/* [ page=home ] loading build */
+
+#loading-build-container {
+    /*display: none;*/
+    position: absolute;
+    border: 1px #eee solid;
+    top: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    height: 450px;
+}
+
+#build-main-message {
+    margin: 100px auto 0 auto;
+    text-align: center;
+    font-style: italic;
+    font-size: 25px;
+}
+
+#build-main-message.success,
+#build-main-message.error {
+    font-style: normal;
+}
+
+#build-main-message.success {
+    color: #51c101;
+}
+
+#build-main-message.error {
+    color: #e60014;
+}
+
+#link-download-build {
+    width: 128px;
+    height: 128px;
+    margin: 35px auto 0 auto;
+    display: block;
+    background: transparent url("../images/download.png") no-repeat center center;
+    opacity: 0.5;
+}
+
+#link-download-build:hover {
+    opacity: 0.6;
+}
