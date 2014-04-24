@@ -5,36 +5,6 @@ function WPProjectBuilder()
         WPProjectBuilder.validateActiveBuildAction();
         WPProjectBuilder.validateActiveNewPluginAction();
         WPProjectBuilder.loadPluginList();
-
-        // ajax({
-        //     url  : "action/add-new-plugin",
-        //     type : "POST",
-        //     dataType : "json",
-        //     data : {
-        //         url : "https://wordpress.org/plugins/qtranslate/"
-        //     },
-        //     success : function (response)
-        //     {
-        //         if (response.statusCode == 1)
-        //         {
-        //             WPProjectBuilder.loadPluginList();
-        //             classMessage = "success";
-        //         }
-        //         else
-        //         {
-        //             classMessage = "error";
-        //         }
-
-        //         // update messaage
-        //         divOverlay.classList.add(classMessage);
-        //         stepsMessage.setAttribute("class", classMessage);
-        //         stepsMessage.innerHTML = response.message;
-
-        //         // display back button
-        //         doc.getElementById("close-overlay").style.display = "block";
-
-        //     }
-        // });
     };
 
     this.loadPluginList = function()
@@ -99,7 +69,7 @@ function WPProjectBuilder()
         var doc                      = document,
             btnBuildProject          = doc.getElementById("btn-build-project"),
             btnBuildProjectClassList = btnBuildProject.classList,
-            coreOptions              = doc.querySelectorAll("#wp-core-options a"),
+            coreOptions              = doc.querySelectorAll("#build-config-core a"),
             qttCoreOptions           = coreOptions.length,
             selectedCore             = false,
             i                        = 0;
@@ -153,14 +123,14 @@ function WPProjectBuilder()
     this.addNewPlugin = function()
     {
         var doc                  = document,
-            sectionPluginOptions = doc.getElementById("wp-plugin-options"),
+            sectionPluginOptions = doc.getElementById("build-config-plugins"),
             divOverlay           = doc.createElement("div"),
             stepsMessage         = null,
             classMessage         = "";
 
         if (WPProjectBuilder.newPluginIsValid())
         {
-            divOverlay.innerHTML = "<div id=\"msg-steps-add-new-plugin\">adicionando plugin... aguarde...</div><a href=\"javascript:void(0);\" id=\"close-overlay\" onclick=\"WPProjectBuilder.closeOverlay();\">voltar</a>";
+            divOverlay.innerHTML = "<div id=\"msg-steps-add-new-plugin\">adicionando plugin... aguarde...</div><a href=\"javascript:void(0);\" id=\"close-overlay\" class=\"btn btn-primary\" onclick=\"WPProjectBuilder.closeOverlay();\">voltar</a>";
             divOverlay.setAttribute("class", "overlay-layer");
             sectionPluginOptions.appendChild(divOverlay);
 
