@@ -23,7 +23,6 @@
                     <ul id="accordion-menu">
                         <li id="build-config-core">
                             <h3 class="accordion-menu-title">core</h3>
-                            <span class="accordion-menu-status">linguagem selecionada: <strong>nenhuma</strong></span>
                             <div class="accordion-menu-content">
                                 <ul class="choice-options single-option">
                                     <?php foreach (getWpCoreList() as $core) : ?>
@@ -34,7 +33,6 @@
                         </li>
                         <li id="build-config-plugins">
                             <h3 class="accordion-menu-title">plugins</h3>
-                            <span class="accordion-menu-status">plugins selecionados: <strong>nenhum</strong></span>
                             <div class="accordion-menu-content">
                                 <div id="new-plugin">
                                     <h4>adicione um plugin</h4>
