@@ -26,6 +26,10 @@ ul {
 
 /* general classes */
 
+.clear {
+    clear: both;
+}
+
 .btn {
     display: block;
     text-decoration: none;
@@ -317,29 +321,33 @@ ul {
             line-height: 15px;
         }
 
-    #new-plugin-submit {
-        color: transparent;
-        position: absolute;
-        top: 30px;
-        right: 20px;
-        width: 40px;
-        height: 40px;
-        border: 1px #51c101 solid;
-        border-left: none;
-        background: #51c101 url("../images/success-mini-active.png") no-repeat center center;
-        cursor: pointer;
+    #new-plugin-submit-container {
+        position: relative;
     }
 
-        #new-plugin-submit:hover {
-            opacity: 0.8;
+        #new-plugin-submit {
+            color: transparent;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            border: 1px #51c101 solid;
+            border-left: none;
+            background: #51c101 url("../images/success-mini-active.png") no-repeat center center;
+            cursor: pointer;
         }
 
-        #new-plugin-submit.inactive {
-            cursor: default;
-            background: #e5e5e5 url("../images/success-mini-inactive.png") no-repeat center center;
-            border-color: #ddd;
-            opacity: 1;
-        }
+            #new-plugin-submit:hover {
+                opacity: 0.8;
+            }
+
+            #new-plugin-submit.inactive {
+                cursor: default;
+                background: #e5e5e5 url("../images/success-mini-inactive.png") no-repeat center center;
+                border-color: #ddd;
+                opacity: 1;
+            }
 
 #adding-plugin {
     border: none;
@@ -417,10 +425,6 @@ ul {
         font-size: 13px;
     }
 
-    #new-plugin-submit {
-        top: 29px;
-    }
-
     #btn-build-project {
         width: 120px;
     }
@@ -428,4 +432,63 @@ ul {
     .plugin-info {
         height: 35px;
     }
+}
+
+/* MEDIA QUERIES */
+
+/* Landscape phones and down */
+@media (max-width: 480px) {
+    
+}
+
+/* Landscape phone to portrait tablet */
+@media (max-width: 767px) {
+    .section-container {
+        width: 100%;
+        padding: 0 40px 40px 40px;
+    }
+
+    #footer {
+        width: 100%;
+        padding: 20px;
+        height: auto;
+    }
+
+        #footer span {
+            float: none !important;
+            width: 100%;
+            display: block;
+            padding: 5px 0;
+        }
+
+    .choice-options li {
+        padding: 0  0 15px 0;
+        margin: 0;
+        width: 100%;
+    }
+
+        .choice-options li:last-child {
+            padding-bottom: 0;
+        }
+
+        .choice-options .option-description {
+            width: calc(100% - 32px);
+        }
+
+        .single-option .option-description {
+            width: 100%;
+        }
+}
+
+/* Portrait tablet to landscape and desktop */
+@media (min-width: 768px) and (max-width: 979px) {
+    .section-container {
+        width: 100%;
+        padding: 0 40px 40px 40px;
+    }
+}
+
+/* Large desktop */
+@media (min-width: 1200px) {
+
 }

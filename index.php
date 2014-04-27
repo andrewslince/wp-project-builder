@@ -6,6 +6,7 @@
 <!--[if IE 8]> <html class="lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--><html><!--<![endif]-->
     <head>
+        <meta name="viewport" content="width=device-width">
         <meta charset="UTF-8">
         <title>wp project builder</title>
         <link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
@@ -37,11 +38,14 @@
                                     <h4>adicione um plugin</h4>
                                     <form action="/" method="GET" onsubmit="return WPProjectBuilder.addNewPlugin();">
                                         <label for="new-plugin-url">caso não encontre o plugin que deseja, adicione um novo copiando o endereço do mesmo no campo abaixo:</label>
-                                        <input id="new-plugin-url" autocomplete="off" onkeyup="WPProjectBuilder.validateActiveNewPluginAction();" type="text" placeholder="ex.: https://wordpress.org/plugins/w3-total-cache" value="" />
-                                        <input id="new-plugin-submit" type="submit" value="ok" class="" />
+                                        <div id="new-plugin-submit-container">
+                                            <input id="new-plugin-url" autocomplete="off" onkeyup="WPProjectBuilder.validateActiveNewPluginAction();" type="text" placeholder="ex.: https://wordpress.org/plugins/w3-total-cache" value="" />
+                                            <input id="new-plugin-submit" type="submit" value="ok" class="" />
+                                        </div>
                                     </form>
                                 </div>
                                 <div id="plugin-list"></div>
+                                <div class="clear"></div>
                             </div>
                         </li>
                     </ul>
