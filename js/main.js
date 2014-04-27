@@ -1,5 +1,13 @@
 function WPProjectBuilder()
 {
+    this.packageListElement = null;
+
+    this.qttSelectedPackages = 0;
+
+    this.currentDownloadPackage = 0;
+
+    this.packageList = [];
+
     this.init = function()
     {
         WPProjectBuilder.validateActiveBuildAction();
@@ -110,32 +118,42 @@ function WPProjectBuilder()
 
         if (WPProjectBuilder.newPluginIsValid())
         {
-            btnAddPluginClassList.add("active");
             btnAddPluginClassList.remove("inactive");
         }
         else
         {
             btnAddPluginClassList.add("inactive");
-            btnAddPluginClassList.remove("active");
         }
     };
 
     this.addNewPlugin = function()
     {
-        var doc                  = document,
-            sectionPluginOptions = doc.getElementById("build-config-plugins"),
-            divOverlay           = doc.createElement("div"),
-            stepsMessage         = null,
-            classMessage         = "";
+        var doc                       = document,
+            sectionPluginConfig       = doc.getElementById("build-config-plugins"),
+            divBuildContainer         = doc.getElementById("build-container"),
+            divOverlay                = doc.createElement("div"),
+            referenceId               = "adding-plugin",
+            classMessage              = "",
+            htmlOutput                = "";
 
         if (WPProjectBuilder.newPluginIsValid())
         {
-            divOverlay.innerHTML = "<div id=\"msg-steps-add-new-plugin\">adicionando plugin... aguarde...</div><a href=\"javascript:void(0);\" id=\"close-overlay\" class=\"btn btn-primary\" onclick=\"WPProjectBuilder.closeOverlay();\">voltar</a>";
-            divOverlay.setAttribute("class", "overlay-layer");
-            sectionPluginOptions.appendChild(divOverlay);
+            htmlOutput += "<div class=\"loading-layer-icon\"></div>";
+            htmlOutput += "<div class=\"loading-layer-message\">adicionando plugin...</div>";
+            htmlOutput += "<a href=\"javascript:void(0);\" class=\"btn btn-primary close-loading-layer\" onclick=\"WPProjectBuilder.closeOverlay('" + referenceId + "'); document.querySelector('#build-config-plugins .accordion-menu-content').style.display = 'block';\">voltar</a>";
 
-            stepsMessage = doc.getElementById("msg-steps-add-new-plugin");
-            
+            divOverlay.setAttribute("id", referenceId);
+            divOverlay.setAttribute("class", "loading-layer-container");
+            divOverlay.innerHTML = htmlOutput;
+
+            // hide plugin list
+            doc.querySelector("#build-config-plugins .accordion-menu-content").style.display = "none";
+
+            // show message "adding plugin..."
+            sectionPluginConfig.appendChild(divOverlay);
+
+            divBuildContainer.classList.add(referenceId);
+
             ajax({
                 url  : "action/add-new-plugin",
                 type : "POST",
@@ -154,15 +172,22 @@ function WPProjectBuilder()
                     {
                         classMessage = "error";
                     }
+                    
+                    WPProjectBuilder.loadPluginList();
 
-                    // update messaage
-                    divOverlay.classList.add(classMessage);
-                    stepsMessage.setAttribute("class", classMessage);
-                    stepsMessage.innerHTML = response.message;
+                    // mostrar mensagem do build gerado com sucesso
+                    doc.getElementById(referenceId).classList.add(classMessage);
+                    doc.querySelector("#" + referenceId + " .loading-layer-message").innerHTML = response.message;
 
                     // display back button
-                    doc.getElementById("close-overlay").style.display = "block";
+                    doc.querySelector("#" + referenceId + " .close-loading-layer").style.display = "block";
 
+                    // display build project button
+                    divBuildContainer.classList.remove(referenceId);
+
+                    // reset form plugin states
+                    doc.getElementById("new-plugin-url").value = "";
+                    doc.getElementById("new-plugin-submit").setAttribute("class", "inactive");
                 }
             });
         }
@@ -170,14 +195,9 @@ function WPProjectBuilder()
         return false;
     };
 
-    this.closeOverlay = function()
+    this.closeOverlay = function(referenceId)
     {
-        var doc = document,
-            divOverlay = document.getElementsByClassName("overlay-layer")[0];
-
-        doc.getElementById("new-plugin-url").value = "";
-        doc.getElementById("new-plugin-submit").setAttribute("class", "inactive");
-
+        var divOverlay = document.querySelector("#" + referenceId + ".loading-layer-container");
         divOverlay.parentNode.removeChild(divOverlay);
     };
 
@@ -186,11 +206,12 @@ function WPProjectBuilder()
         var doc                    = document,
             coreOptions            = doc.querySelectorAll(".single-option .option-description"),
             pluginOptions          = doc.querySelectorAll(".multiple-options .option-description"),
+            divBuildContainer      = doc.getElementById("build-container"),
             divOverlay             = doc.createElement("div"),
-            linkDownload           = doc.createElement("a"),
             qttSelectedPlugins     = pluginOptions.length,
             qttSelectedCore        = coreOptions.length,
-            classMessage           = "",
+            htmlPackages           = "",
+            htmlOutput             = "",
             coreList               = [],
             pluginList             = [],
             i                      = 0,
@@ -198,15 +219,12 @@ function WPProjectBuilder()
             counterSelectedCore    = 0,
             counterSelectedPlugins = 0;
 
-        divOverlay.innerHTML = "<div id=\"loading-build-container\"><p id=\"build-main-message\">gerando build do projeto...</p></div><a href=\"javascript:void(0);\" id=\"close-overlay-build\" onclick=\"WPProjectBuilder.closeOverlay();\">voltar</a>";
-        divOverlay.setAttribute("class", "overlay-layer");
-        doc.getElementById("build-container").appendChild(divOverlay);
-
         // selected wp core
         for (i = 0; i < qttSelectedCore; i++)
         {
             if (coreOptions[i].classList.contains("selected"))
             {
+                htmlPackages += "<li data-package-name=\"" + coreOptions[i].innerHTML + "\" class=\"download-pending\">" + coreOptions[i].innerHTML + "</li>";
                 coreList[counterSelectedCore] = coreOptions[i].innerHTML;
                 counterSelectedCore++;
             }
@@ -218,44 +236,94 @@ function WPProjectBuilder()
             if (pluginOptions[j].classList.contains("selected"))
             {
                 pluginList[counterSelectedPlugins] = pluginOptions[j].getAttribute("data-plugin-name");
+                htmlPackages += "<li data-package-name=\"" + pluginList[counterSelectedPlugins] + "\" class=\"download-pending\">" + pluginList[counterSelectedPlugins] + "</li>";
                 counterSelectedPlugins++;
             }
         }
 
-        ajax({
-            url  : "action/build-project",
-            type : "POST",
-            dataType : "json",
-            data : {
-                core : coreList.join(","),
-                plugins : pluginList.join(",")
-            },
-            success : function (buildId)
-            {
-                if (buildId !== "")
+        htmlPackages += "<li class=\"download-pending\">empacotando projeto</li>";
+
+        htmlOutput += "<div class=\"loading-layer-icon\"></div>";
+        htmlOutput += "<div class=\"loading-layer-message\">gerando build do projeto...</div>";
+        htmlOutput += "<a href=\"javascript:void(0);\" id=\"download-build-link\"></a>";
+        htmlOutput += "<div class=\"loading-layer-content\">";
+        htmlOutput += "    <p class=\"description\">baixando pacotes selecionados</p>";
+        htmlOutput += "    <ul id=\"downloading-selected-plugins\">" + htmlPackages + "</ul>";
+        htmlOutput += "</div>";
+
+        divOverlay.setAttribute("id", "loading-build");
+        divOverlay.setAttribute("class", "loading-layer-container");
+        divOverlay.innerHTML = htmlOutput;
+
+        divBuildContainer.appendChild(divOverlay);
+        divBuildContainer.classList.add("generating-build");
+
+        WPProjectBuilder.manageDownloadPackages(coreList, pluginList);
+    };
+
+    this.manageDownloadPackages = function(core, plugins)
+    {
+        WPProjectBuilder.packageListElement  = document.querySelectorAll("#downloading-selected-plugins li");
+        WPProjectBuilder.packageList         = core.concat(plugins);
+        WPProjectBuilder.qttSelectedPackages = WPProjectBuilder.packageList.length;
+
+        WPProjectBuilder.downloadPackage(0);
+    };
+
+    this.downloadPackage = function(currentPackage)
+    {
+        var doc             = document,
+            buildLink       = doc.getElementById("download-build-link"),
+            pckg            = WPProjectBuilder.packageListElement[currentPackage],
+            classListPckg   = pckg.classList,
+            divLoadingBuild = doc.getElementById("loading-build");
+        
+        classListPckg.remove("download-pending");
+        classListPckg.add("download-in-progress");
+
+        if (currentPackage < WPProjectBuilder.qttSelectedPackages)
+        {
+            ajax({
+                url  : "action/download-package",
+                type : "POST",
+                dataType : "json",
+                data : {
+                    name : pckg.getAttribute("data-package-name"),
+                    type : ((currentPackage === 0) ? "core" : "plugin")
+                },
+                success : function (response)
                 {
-                    linkDownload.href = "action/download-build?build_id=" + buildId;
-                    linkDownload.setAttribute("id", "link-download-build");
-                    doc.getElementById("loading-build-container").appendChild(linkDownload);
-                    
+                    classListPckg.remove("download-in-progress");
+                    classListPckg.add("download-" + ((response) ? "finished" : "error"));
 
-                    classMessage = "success";
+                    WPProjectBuilder.downloadPackage((parseInt(currentPackage) + 1));
                 }
-                else
+            });
+        }
+        else
+        {
+            ajax({
+                url  : "action/packaging-build",
+                type : "GET",
+                dataType : "json",
+                success : function (response)
                 {
-                    classMessage = "error";
+                    classListPckg.remove("download-in-progress");
+                    classListPckg.add("download-" + ((response) ? "finished" : "error"));
+
+                    // mostrar link para download do build
+                    buildLink.href          = "action/download-build?build_id=" + response.data.buildId;
+                    buildLink.style.display = "block";
+
+                    // mostrar mensagem do build gerado com sucesso
+                    divLoadingBuild.classList.add("success");
+                    doc.querySelector("#loading-build .loading-layer-message").innerHTML = "build gerado com sucesso!";
                 }
-
-                // update messaage
-                divOverlay.classList.add(classMessage);
-                doc.getElementById("build-main-message").setAttribute("class", classMessage);
-                doc.getElementById("build-main-message").innerHTML = "build gerado com sucesso!";
-
-                // display back button
-                doc.getElementById("close-overlay-build").style.display = "block";
-            }
-        });
+            });
+        }
     };
 }
 
 var WPProjectBuilder = new WPProjectBuilder();
+
+WPProjectBuilder.init();

@@ -1,4 +1,5 @@
 <?php include 'define.php'; ?>
+<?php createBuildId(); ?>
 <!DOCTYPE html>
 <!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
 <!--[if IE 7]> <html class="lt-ie9 lt-ie8"> <![endif]-->
@@ -8,8 +9,6 @@
         <meta charset="UTF-8">
         <title>wp project builder</title>
         <link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
-        <script type="text/javascript" src="js/functions.js"></script>
-        <script type="text/javascript" src="js/main.js"></script>
     </head>
     <body>
         <header id="header">
@@ -45,15 +44,18 @@
                                 <div id="plugin-list"></div>
                             </div>
                         </li>
-                        <!-- <li id="build-config-project">
-                            <h3 class="accordion-menu-title"><a href="javascript:void(0);">projeto</a></h3>
-                        </li> -->
                     </ul>
                     <a href="javascript:void(0);" id="btn-build-project" class="btn btn-success">fazer build</a>
                 </div>
-                <script type="text/javascript">WPProjectBuilder.init();</script>
             </div>
         </section>
-        <footer id="footer">powered by <a href="https://twitter.com/andrews_lince">@andrews_lince</a></footer>
+        <footer id="footer">
+            <span id="site-date">&copy; 2014</span>
+            <span id="powered-by">
+                criado por <a target="_blank" href="https://twitter.com/andrews_lince">@andrews_lince</a>
+            </span>
+        </footer>
+        <script type="text/javascript" src="js/functions.js"></script>
+        <script type="text/javascript" src="js/main.js"></script>
     </body>
 </html>

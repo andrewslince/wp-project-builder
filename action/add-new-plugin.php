@@ -17,4 +17,8 @@ theme-check
 
 */
 
-echo json_encode(addPlugin($_POST['url'])); exit;
+$url = (isset($_SERVER['argv']))
+    ? $_SERVER['argv']['1']
+    : $_POST['url'];
+
+echo json_encode(addPlugin($url)); exit;

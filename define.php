@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 // ERROR REPORTING
 
 error_reporting(E_ALL);
@@ -74,6 +76,30 @@ function removeDir($dir)
     return rmdir($dir);
 }
 
+/**
+ * @param  array $server[]
+ * @param  boolean $validateBuildId
+ * @return integer
+ * - 0 to invalid request
+ * - 1 to valid request
+ * - 2 to invalid build id
+ */
+function validateAjaxRequest($server, $validateBuildId = false)
+{
+    $validationCode = 0;
+
+    if ($validateBuildId && !strlen(getBuildId()))
+    {
+        $validationCode = 2;
+    }
+    else if ($server)
+    {
+        $validationCode = 1;
+    }
+
+    return $validationCode;
+}
+
 function downloadFile($url, $filename)
 {
     return (file_put_contents($filename, fopen($url, 'r')))
@@ -95,7 +121,9 @@ function extractFile($filepath, $targetFolder)
         $zip->close();
 
         return true;
-    } else {
+    }
+    else
+    {
         return false;
     }
 }
@@ -113,9 +141,22 @@ function pluginUrlIsValid($url)
         : false;
 }
 
-function getPluginList()
+function getPluginList($pluginName = '')
 {
-    return readJsonFile(PLUGIN_LIST_FILE);
+    $pluginList = readJsonFile(PLUGIN_LIST_FILE);
+
+    if (strlen(trim($pluginName)))
+    {
+        foreach ($pluginList as $plugin)
+        {
+            if ($plugin['name'] == $pluginName)
+            {
+                return $plugin;
+            }
+        }
+    }
+
+    return $pluginList;
 }
 
 function updatePluginList($pluginList)
@@ -133,6 +174,78 @@ function getPluginNameByUrl($url)
 
     // get the plugin name
     return strtok(str_replace($urlPattern, '', $url), '/');
+}
+
+function formatBytes($bytes, $precision = 2, $separator = ' ')
+{
+    $units = array('B', 'KB', 'MB', 'GB', 'TB'); 
+
+    $bytes = max($bytes, 0); 
+    $pow   = floor(($bytes ? log($bytes) : 0) / log(1024)); 
+    $pow   = min($pow, count($units) - 1); 
+
+    // Uncomment one of the following alternatives
+    // $bytes /= pow(1024, $pow);
+    $bytes /= (1 << (10 * $pow));
+
+    return round($bytes, $precision) . $separator . $units[$pow];
+
+    // other implementation
+    /*
+    $base = log($size) / log(1024);
+    $suffixes = array('', 'k', 'M', 'G', 'T');   
+
+    return round(pow(1024, $base - floor($base)), $precision) . $suffixes[floor($base)];
+    */
+} 
+
+/**
+ * Returns the size of a file without downloading it, or -1 if the file size could not be determined
+ *
+ * @param $url - The location of the remote file to download. Cannot be null or empty
+ * @return The size of the file referenced by $url, or -1 if the size could not be determined
+ */
+function getRemoteFileSize($url)
+{
+    // Assume failure.
+    $result = -1;
+
+    $curl = curl_init($url);
+
+    // Issue a HEAD request and follow any redirects.
+    curl_setopt($curl, CURLOPT_NOBODY, true);
+    curl_setopt($curl, CURLOPT_HEADER, true);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+    // curl_setopt($curl, CURLOPT_USERAGENT, get_user_agent_string());
+    curl_setopt($curl, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+
+    $data = curl_exec($curl);
+    curl_close($curl);
+
+    if ($data)
+    {
+        $content_length = 'unknown';
+        $status         = 'unknown';
+
+        if(preg_match( "/^HTTP\/1\.[01] (\d\d\d)/", $data, $matches))
+        {
+            $status = (int) $matches['1'];
+        }
+
+        if(preg_match( "/Content-Length: (\d+)/", $data, $matches))
+        {
+            $content_length = (int) $matches['1'];
+        }
+
+        // http://en.wikipedia.org/wiki/List_of_HTTP_status_codes
+        if($status == 200 || ($status > 300 && $status <= 308))
+        {
+            $result = $content_length;
+        }
+    }
+
+    return $result;
 }
 
 function getPluginInformation($url)
@@ -158,6 +271,9 @@ function getPluginInformation($url)
         $pluginDownloadUrl = $html->find('a[itemprop=downloadUrl]')['0']->href;
         $pluginVersion     = $html->find('meta[itemprop=softwareVersion]')['0']->content;
 
+        // get filesize
+        $rawBytes = getRemoteFileSize($pluginDownloadUrl);
+
         // get tags
         $pluginTags = $html->find('a[rel=tag]');
         $tagList    = array();
@@ -167,14 +283,16 @@ function getPluginInformation($url)
         }
         
         $pluginInformation = array(
-            'name'        => $pluginName,
-            'title'       => $pluginTitle,
-            'version'     => $pluginVersion,
-            'tags'        => implode(',', $tagList),
-            'description' => $pluginDescription,
-            'pluginUrl'   => $url,
-            'downloadUrl' => $pluginDownloadUrl,
-            'ts'          => date("Y-m-d H:i:s")
+            'name'           => $pluginName,
+            'title'          => $pluginTitle,
+            'version'        => $pluginVersion,
+            'tags'           => implode(',', $tagList),
+            'description'    => $pluginDescription,
+            'pluginUrl'      => $url,
+            'downloadUrl'    => $pluginDownloadUrl,
+            'rawBytes'       => $rawBytes,
+            'formattedBytes' => formatBytes($rawBytes),
+            'ts'             => date("Y-m-d H:i:s"),
         );
     }
     catch(Exception $e)
@@ -258,26 +376,14 @@ function addPlugin($url, $log = false)
     $rcValidatePlugin = validateNewPlugin($url);
     if ($rcValidatePlugin['statusCode'] == 1)
     {
-        // checks if the plugin package was successfully downloaded
-        $pluginInfo = getPluginInformation($url)['data'];
-        if (downloadPlugin($pluginInfo['downloadUrl'], $pluginInfo['name']))
-        {
-            chmod(PLUGIN_DIR . $pluginInfo['name'] . '.zip', 0775);
-            
-            $pluginList   = getPluginList();
-            $pluginList[] = $pluginInfo;
+        $pluginList   = getPluginList();
+        $pluginList[] = getPluginInformation($url)['data'];
 
-            // checks if the plugin list was successfully updated
-            if (!updatePluginList($pluginList))
-            {
-                $returnInfo['statusCode'] = 4;
-                $returnInfo['message']    = 'problemas ao atualizar a lista de plugins';
-            }
-        }
-        else
+        // checks if the plugin list was successfully updated
+        if (!updatePluginList($pluginList))
         {
-            $returnInfo['statusCode'] = 3;
-            $returnInfo['message']    = 'problemas ao fazer o download do plugin';
+            $returnInfo['statusCode'] = 4;
+            $returnInfo['message']    = 'problemas ao atualizar a lista de plugins';
         }
     }
     else
@@ -342,14 +448,28 @@ function extractWpCore($language, $pathTo)
 
 /* ==========================| BUILDER |========================== */
 
-function getBuildId()
+function packagingBuild($buildId)
 {
-    return base64_encode('build_' . time());
+    return (zipBuildProject(BUILD_TMP_DIR . $buildId . DIRECTORY_SEPARATOR, getDownloadBuildFile($buildId)))
+        ? true
+        : false;
 }
 
 function getDownloadBuildFile($buildId)
 {
-    return BASE_DIR . 'wp-files' . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR . 'wp_build_' . $buildId . '.zip';
+    return BUILD_TMP_DIR . 'wp_build_' . $buildId . '.zip';
+}
+
+function createBuildId()
+{
+    $_SESSION['wpb']['buildId'] = base64_encode('build_' . time());
+}
+
+function getBuildId()
+{
+    return (isset($_SESSION['wpb']['buildId']))
+        ? $_SESSION['wpb']['buildId']
+        : '';
 }
 
 function buildIdToDownload()
@@ -414,6 +534,66 @@ function zipBuildProject($source, $destination)
     return $zipped;
 }
 
+function extractPackage($name, $type)
+{
+
+}
+
+function downloadPackage($name, $type)
+{
+    $downloadedSuccessfully = false;
+    $buildId = getBuildId();
+
+    $tmpBuildFolder = BUILD_TMP_DIR . $buildId . DIRECTORY_SEPARATOR;
+
+    if ($type == 'core')
+    {
+        if (!is_dir($tmpBuildFolder))
+        {
+            mkdir($tmpBuildFolder, 0777, true);
+        }
+
+        $coreZipFile = $tmpBuildFolder . 'wp-core.zip';
+        $coreInfo    = getWpCoreList($name);
+        if (downloadFile($coreInfo['downloadUrl'], $coreZipFile))
+        {
+            // get core >> extract
+            if (extractFile($coreZipFile, $tmpBuildFolder))
+            {
+                $downloadedSuccessfully = true;
+                unlink($coreZipFile);
+            }
+        }
+    }
+    else
+    {
+        $pluginInfo    = getPluginList($name);
+
+        $pluginFolder  = $tmpBuildFolder . 'wordpress' . DIRECTORY_SEPARATOR . 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR;
+        $pluginZipFile = $pluginFolder . $name . '.zip';
+
+        if (downloadFile($pluginInfo['downloadUrl'], $pluginZipFile))
+        {
+            // get plugins >> extract plugin
+            if (extractFile($pluginZipFile, $pluginFolder))
+            {
+                $downloadedSuccessfully = true;
+                unlink($pluginZipFile);
+            }
+            // else
+            // {
+            //     dbg('falha na extração para o diretório: ' . $tmpBuildFolder . 'wordpress' . DIRECTORY_SEPARATOR . 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . $plugin . DIRECTORY_SEPARATOR);
+            // }
+        }
+        // else
+        // {
+        //     dbg('falha no download');
+        // }
+    }
+
+    return $downloadedSuccessfully;
+}
+
 function buildProject($config)
 {
     $buildId = buildIdToDownload();
@@ -422,22 +602,60 @@ function buildProject($config)
 
     $tmpBuildPluginFolder = $tmpBuildFolder . 'wordpress' . DIRECTORY_SEPARATOR . 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR;
 
-    // extract wp core
-    extractWpCore($config['core'], $tmpBuildFolder);
+    // get core
+    $coreInfo = getWpCoreList($config['core']);
 
-    // extract plugins
+    // get core >> download
+    mkdir($tmpBuildFolder, 0777, true);
+    $coreZipFile = $tmpBuildFolder . 'wp-core.zip';
+    if (downloadFile($coreInfo['downloadUrl'], $coreZipFile))
+    {
+        // get core >> extract
+        if (extractFile($coreZipFile, $tmpBuildFolder))
+        {
+            unlink($coreZipFile);
+        }
+    }
+
+    // get plugins
     foreach ($config['plugins'] as $plugin)
     {
-        extractPlugin($plugin, $tmpBuildPluginFolder);
+        $pluginInfo = getPluginList($plugin);
+
+        $pluginFolder = $tmpBuildFolder . 'wordpress' . DIRECTORY_SEPARATOR . 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR;
+
+        // get plugins >> download
+        $pluginZipFile = $pluginFolder . $plugin . '.zip';
+        if (downloadFile($pluginInfo['downloadUrl'], $pluginZipFile))
+        {
+            // get plugins >> extract plugin
+            if (extractFile($pluginZipFile, $pluginFolder))
+            {
+                // removes zipped file
+                unlink($pluginZipFile);
+            }
+            else
+            {
+                dbg('falha na extração para o diretório: ' . $tmpBuildFolder . 'wordpress' . DIRECTORY_SEPARATOR . 'wp-content' . DIRECTORY_SEPARATOR . 'plugins' . DIRECTORY_SEPARATOR . $plugin . DIRECTORY_SEPARATOR);
+            }
+        }
+        else
+        {
+            dbg('falha no download');
+        }
     }
+
+    dbg('pega!!!!', 0);
 
     // zip file to download
     if (zipBuildProject($tmpBuildFolder, getDownloadBuildFile($buildId)))
     {
+        dbg('ifẽẽẽẽẽẽ');
         return $buildId;
     }
     else
     {
+        dbg('elsêêêêêê');
         return '';
     }
 }
