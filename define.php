@@ -1,5 +1,7 @@
 <?php
 
+header('Content-Type: text/html; charset=utf-8');
+
 session_start();
 
 // ERROR REPORTING
@@ -24,6 +26,23 @@ define('WP_CORE_DIR', WP_FILES_DIR . 'core' . DIRECTORY_SEPARATOR);
 define('BUILD_TMP_DIR', WP_FILES_DIR . 'tmp' . DIRECTORY_SEPARATOR);
 
 /* ==========================| GENERAL |========================== */
+
+function sanitizeOutput($buffer)
+{
+    $search = array(
+        '/\>[^\S ]+/s',  // strip whitespaces after tags, except space
+        '/[^\S ]+\</s',  // strip whitespaces before tags, except space
+        '/(\s)+/s'       // shorten multiple whitespace sequences
+    );
+
+    $replace = array(
+        '>',
+        '<',
+        '\\1'
+    );
+
+    return preg_replace($search, $replace, $buffer);
+}
 
 function dbg($param, $exit = true)
 {

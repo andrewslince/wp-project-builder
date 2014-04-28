@@ -1,4 +1,4 @@
-<?php include 'define.php'; ?>
+<?php include 'define.php'; ob_start('sanitizeOutput'); ?>
 <?php createBuildId(); ?>
 <!DOCTYPE html>
 <!--[if lt IE 7]> <html class="lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -9,7 +9,7 @@
         <meta name="viewport" content="width=device-width">
         <meta charset="UTF-8">
         <title>wp project builder</title>
-        <link href="css/style.css" rel="stylesheet" type="text/css" media="all" />
+        <link href="css/style-min.css" rel="stylesheet" type="text/css" media="all" />
     </head>
     <body>
         <header id="header">
@@ -59,7 +59,8 @@
                 criado por <a target="_blank" href="https://twitter.com/andrews_lince">@andrews_lince</a>
             </span>
         </footer>
-        <script type="text/javascript" src="js/functions.js"></script>
-        <script type="text/javascript" src="js/main.js"></script>
+        <script type="text/javascript" src="js/all.js"></script>
+        <!-- <script type="text/javascript" src="js/functions.js"></script>
+        <script type="text/javascript" src="js/main.js"></script> -->
     </body>
 </html>

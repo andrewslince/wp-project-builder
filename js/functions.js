@@ -52,22 +52,3 @@ function ajax(options)
         req.send();
     }
 }
-
-function isNumber(n)
-{
-    return !isNaN(parseFloat(n)) && isFinite(n);
-}
-
-function object2Array(myObj)
-{
-    var arr =[];
-    for( var i in myObj ) {
-        if (myObj.hasOwnProperty(i)){
-            if (isNumber(i)){
-                arr[i] = myObj[i];
-            }else{
-              arr.push(myObj[i]);
-            }
-        }
-    }
-}

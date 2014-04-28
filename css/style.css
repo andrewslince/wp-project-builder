@@ -88,12 +88,12 @@ ul {
     .loading-layer-icon {
         width: 48px;
         height: 48px;
-        background: #fff url("../images/loading_.gif") no-repeat center center;
+        background: #fff url("../images/loading.gif") no-repeat center center;
         margin:auto;
     }
 
     .loading-layer-message {
-        margin: 10px auto 50px auto;
+        margin: 10px auto 25px auto;
         text-align: center;
         font-style: italic;
         font-size: 25px;
@@ -124,7 +124,7 @@ ul {
         /* success message */
 
         .loading-layer-container.success .loading-layer-icon {
-            background-image: url("../images/success.png");
+            background: #fff url("../images/sprite.png") no-repeat 0 -80px;
         }
 
         .loading-layer-container.success .loading-layer-message {
@@ -135,7 +135,7 @@ ul {
         /* error message */
 
         .loading-layer-container.error .loading-layer-icon {
-            background-image: url("../images/error.png");
+            background: #fff url("../images/sprite.png") no-repeat -48px -80px;
         }
 
         .loading-layer-container.error .loading-layer-message {
@@ -238,7 +238,7 @@ ul {
                     line-height: 16px;
                     color: transparent;
                     text-decoration: none;
-                    background: #555 url("../images/link.png") no-repeat center center;
+                    background: #555 url("../images/sprite.png") no-repeat -130px -80px;
                 }
 
                 .plugin-info:hover {
@@ -334,7 +334,7 @@ ul {
             height: 40px;
             border: 1px #51c101 solid;
             border-left: none;
-            background: #51c101 url("../images/success-mini-active.png") no-repeat center center;
+            background: #51c101 url("../images/sprite.png") no-repeat -128px -40px;
             cursor: pointer;
         }
 
@@ -344,7 +344,7 @@ ul {
 
             #new-plugin-submit.inactive {
                 cursor: default;
-                background: #e5e5e5 url("../images/success-mini-inactive.png") no-repeat center center;
+                background: #e5e5e5 url("../images/sprite.png") no-repeat -128px 0;
                 border-color: #ddd;
                 opacity: 1;
             }
@@ -366,12 +366,20 @@ ul {
 }
 
     #downloading-selected-plugins li {
-        background: #fff url("../images/pending-24.png") no-repeat center right;
         line-height: 28px;
         text-align: left;
         font-size: 18px;
         font-style: italic;
+        position: relative;
     }
+
+        #downloading-selected-plugins i {
+            width: 24px;
+            height: 24px;
+            position: absolute;
+            right: 0;
+            top: 2px;
+        }
 
         #loading-build .description {
             margin-bottom: 20px;
@@ -384,30 +392,32 @@ ul {
         }
 
         #loading-build .download-in-progress {
-            background-image: url("../images/loading-24.gif");
             font-weight: bold !important;
             color: #008CBA;
         }
 
-        #loading-build .download-pending {
-            background-image: url("../images/pending-24-.png");
-        }
+            .download-in-progress i {
+                background: url("../images/loading-24.gif") no-repeat center center;
+            }
 
-        #loading-build .download-finished {
-            background-image: url("../images/ok-24_.png");
-            font-weight: normal !important;
-        }
+            .download-pending i {
+                background: url("../images/sprite.png") no-repeat -126px -114px;
+            }
 
-        #loading-build .download-error {
-            background-image: url("../images/error-24_.png");
-        }
+            .download-finished i {
+                background: url("../images/sprite.png") no-repeat -95px -80px;
+            }
+
+            .download-error i {
+                background: url("../images/sprite.png") no-repeat -96px -104px;
+            }
 
 #download-build-link {
     width: 128px;
-    height: 128px;
-    margin: -25px auto 0 auto;
+    height: 80px;
+    margin: 0 auto;
     display: none;
-    background: transparent url("../images/cloud2.png") no-repeat center center;
+    background: #fff url("../images/sprite.png") no-repeat 0 0;
 }
 
 #download-build-link:hover {
@@ -435,11 +445,6 @@ ul {
 }
 
 /* MEDIA QUERIES */
-
-/* Landscape phones and down */
-@media (max-width: 480px) {
-    
-}
 
 /* Landscape phone to portrait tablet */
 @media (max-width: 767px) {
@@ -486,9 +491,4 @@ ul {
         width: 100%;
         padding: 0 40px 40px 40px;
     }
-}
-
-/* Large desktop */
-@media (min-width: 1200px) {
-
 }

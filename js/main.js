@@ -224,7 +224,7 @@ function WPProjectBuilder()
         {
             if (coreOptions[i].classList.contains("selected"))
             {
-                htmlPackages += "<li data-package-name=\"" + coreOptions[i].innerHTML + "\" class=\"download-pending\">" + coreOptions[i].innerHTML + "</li>";
+                htmlPackages += "<li data-package-name=\"" + coreOptions[i].innerHTML + "\" class=\"download-pending\">" + coreOptions[i].innerHTML + "<i></i></li>";
                 coreList[counterSelectedCore] = coreOptions[i].innerHTML;
                 counterSelectedCore++;
             }
@@ -236,12 +236,12 @@ function WPProjectBuilder()
             if (pluginOptions[j].classList.contains("selected"))
             {
                 pluginList[counterSelectedPlugins] = pluginOptions[j].getAttribute("data-plugin-name");
-                htmlPackages += "<li data-package-name=\"" + pluginList[counterSelectedPlugins] + "\" class=\"download-pending\">" + pluginList[counterSelectedPlugins] + "</li>";
+                htmlPackages += "<li data-package-name=\"" + pluginList[counterSelectedPlugins] + "\" class=\"download-pending\">" + pluginList[counterSelectedPlugins] + "<i></i></li>";
                 counterSelectedPlugins++;
             }
         }
 
-        htmlPackages += "<li class=\"download-pending\">empacotando projeto</li>";
+        htmlPackages += "<li class=\"download-pending\">empacotando projeto<i></i></li>";
 
         htmlOutput += "<div class=\"loading-layer-icon\"></div>";
         htmlOutput += "<div class=\"loading-layer-message\">gerando build do projeto...</div>";
